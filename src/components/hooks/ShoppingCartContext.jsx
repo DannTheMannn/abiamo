@@ -1,14 +1,14 @@
-import { createContext, useContext, useState } from "react"
-import CartComponent from "../user/Cart"
+import { createContext, useState, useContext } from "react"
 import { useLocalStorage } from "./useLocalStorage"
 
 
 
-const ShoppingCartContext = createContext({})
+export const ShoppingCartContext = createContext({})
 
 export function useShoppingCart() {
   return useContext(ShoppingCartContext)
 }
+
 export function ShoppingCartProvider({ children }) {
   const [isOpen, setIsOpen] = useState(false)
   const [cartItems, setCartItems] = useLocalStorage(
@@ -61,7 +61,9 @@ export function ShoppingCartProvider({ children }) {
       return currItems.filter(item => item.id !== id)
     })
   }
-
+  function clearCart() {
+    setCartItems([])
+  }
   return (
     <ShoppingCartContext.Provider
       value={{
@@ -69,14 +71,16 @@ export function ShoppingCartProvider({ children }) {
         increaseCartQuantity,
         decreaseCartQuantity,
         removeFromCart,
+        clearCart,
         openCart,
         closeCart,
         cartItems,
         cartQuantity,
+        isOpen
       }}
     >
       {children}
-      <CartComponent isOpen={isOpen} />
     </ShoppingCartContext.Provider>
   )
 }
+

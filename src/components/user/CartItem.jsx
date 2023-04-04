@@ -1,59 +1,45 @@
-import React, { Component } from 'react';
-
+import React from 'react';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import { Button, CardMedia } from '@mui/material';
-import Grow from '@mui/material/Grow';
 import { AddCircle, RemoveCircle } from '@mui/icons-material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {IconButton} from '@mui/material';
-import { purple, red } from '@mui/material/colors';
+import {useShoppingCart } from '../hooks/ShoppingCartContext';
+import { DataContext } from '../hooks/ApiContext';
+import { useContext } from 'react';
 
+function CartItemComponent({id}) {
+  const {increaseCartQuantity, decreaseCartQuantity, getItemQuantity, removeFromCart} = useShoppingCart()
+  const { getTitle, getBody } = useContext(DataContext);
+  return ( 
+    <Card sx={{ maxWidth: '100%', margin : 5, position: 'relative'}} > 
+    <CardContent color="success">
+      <Typography variant="h5" component="div">
+        {getTitle(id)}
+      </Typography>
+      <Typography variant="b" component="div">
+      {getBody(id)}
+      </Typography>
+    </CardContent>
 
-class CartItemComponent extends Component {
-    state = { 
-
-     } 
-
-
-  
-    
-    render() { 
-        return (
-
-            <Card sx={{ maxWidth: '100%', margin : 5}} > 
-            <CardContent color="success">
-              <Typography sx={{ fontSize: 14 }} color="ffaffc" gutterBottom>
-                {this.props.value}
-              </Typography>
-              <Typography variant="h5" component="div">
-                Name
-              </Typography>
-              <Typography variant="b" component="div">
-                Beschreibung
-              </Typography>
-              <CardMedia
-              component="img"
-              sx={{ width: 151 }}
-              image="https://picsum.photos/200/300"
-              alt="Live from space album cover"/>
-            </CardContent>
-
-            <CardActions>
-            <IconButton color="red" aria-label="reduce amount" component="label">
-            <RemoveCircle  sx={{ height: 38, width: 38 }}  />
-            </IconButton>
-            <Typography>0</Typography>
-            <IconButton color="primary" aria-label="increase amount" component="label">
-            <AddCircle  sx={{ height: 38, width: 38 }}  />
-            </IconButton>
-            </CardActions>
-          </Card>
-            
-        );
-    }
+    <CardActions>
+    <IconButton color="red" aria-label="reduce amount" component="label" onClick={() => decreaseCartQuantity(id)}>
+    <RemoveCircle  sx={{ height: 38, width: 38 }}  />
+    </IconButton>
+    <Typography>{getItemQuantity(id)}</Typography>
+    <IconButton color="primary" aria-label="increase amount" component="label" onClick={() => increaseCartQuantity(id)}>
+    <AddCircle  sx={{ height: 38, width: 38 }}  />
+    </IconButton>
+    <IconButton color="primary" aria-label="increase amount" component="label" sx={{position: "absolute", top: 5, right: 5}} onClick={() => removeFromCart(id)}>
+    <DeleteIcon  sx={{ height: 38, width: 38}}  />
+    </IconButton>
+    </CardActions>
+  </Card>
+   );
 }
- 
+
 export default CartItemComponent;
+
+

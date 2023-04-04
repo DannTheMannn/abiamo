@@ -1,132 +1,92 @@
-import React, { Component } from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Badge from '@mui/material/Badge';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import OrderItemComponent from './OrderItem';
-import axios from 'axios';
-import CartComponent from './Cart';
-import { Container } from '@mui/system';
-class FoodOrderComponent extends Component {
+import { useEffect, useState, useContext } from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Badge from "@mui/material/Badge";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import axios from "axios";
+import CartComponent from "./Cart";
+import { Container } from "@mui/system";
+import CircularProgress from "@mui/material/CircularProgress";
+import FoodBannerComponent from "./FoodBanner";
+import { ShoppingCartContext } from "../hooks/ShoppingCartContext";
+import OrderItemComponent from "./OrderItem";
+import { DataProvider } from "../hooks/ApiContext";
+import { Margin } from "@mui/icons-material";
 
-      state = { 
-        items : [],
-        isOpen: false,
-        cartItems: [],
-        cartQuantity: 0
-        
-
-       } 
-
-      componentDidMount() {
-        this.fetchData();
-      }
-    
-      fetchData = async () => {
-        const response = await axios.get('https://jsonplaceholder.typicode.com/todos');
-    
-        this.setState({ items: response.data });
-      };
-    
-      addToCart = (item) => {
-
-        this.setState((state) => ({
-          cartItems: [...state.cartItems, item],
-        }));
-    
-    
-        this.setState((state) => ({
-          cartQuantity: state.cartQuantity + 1,
-        }));
-    
-      };
-    
-    
-      deleteFromCart = (item) => {
-     
-        this.setState((state) => ({
-          cartItems: state.cartItems.filter((i) => i !== item),
-        }));
-    
-    
-        this.setState((state) => ({
-          cartQuantity: state.cartQuantity - 1,
-        }));
-      };
-
-      openCart = () => {
-        this.setState((state) => ({
-          isOpen: true
-        }));
-      };
-    
-      closeCart = () => {
-        this.setState((state) => ({
-          isOpen: false
-        }));
-    
-      };
-    
-      placeOrder = () => {
-    
-      };
+function FoodOrderComponent() {
+  const { openCart, cartQuantity } = useContext(ShoppingCartContext);
+  const [items, setItems] = useState([]);
 
 
-      render() {
+  useEffect(() => {
+    document.title = 'Bruzzelhütte';
+    async function fetchData() {
+      const response = await axios.get("http://aid.ddns.net:8080/loadMenu");
+      setItems(response.data);
+    }
+    fetchData();
+  }, []);
 
-        const { items } = this.state;
-    
-        if (!items) {
-          return <div className="spinner-grow" role="status">
-                 <span className="sr-only">Loading...</span>
-                 </div>;
-        }
-        return (
+  if (items.length === 0) {
+    return (
+      <Box sx={{ display: "flex" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-            <>
-            <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="fixed">
-              <Toolbar>
-                <Typography
-                  variant="h6"
-                  noWrap
-                  component="div">
-                  Bruzzelhütte
-                </Typography>
+  return (
+    <>
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar position="fixed">
+          <Toolbar>
 
-                <Box sx={{ flexGrow: 1 }} />
-                <Box>
-                  <IconButton size="large" aria-label="show 4 new mails" color="inherit" onClick={this.openCart}>
-                    <Badge badgeContent={this.state.cartQuantity} color="error">
-                    <ShoppingCartIcon />
-                    </Badge>
-                  </IconButton>
-                </Box>
-              </Toolbar>
-            </AppBar>
-            
-          </Box>
-          <Container sx={{ marginTop: "10vh"}}>
+          <Box component="img" sx={{height: "50px", marginRight: "10px"}}
+           alt="icon missing"
+           src="brzl1.png"
+          />
 
-   
-          {this.state.items.map(item => <OrderItemComponent key={item.id} onAdd={this.addToCart} value={item}/>)}
-       
-          
-          
-          </Container>
+            <Typography variant="h6" noWrap component="div">
+              Bruzzelhütte
+            </Typography>
 
+            <Box sx={{ flexGrow: 1 }} />
+            <Box>
+              <IconButton
+                size="large"
+                aria-label="show 4 new mails"
+                color="inherit"
+                onClick={openCart}
+              >
+                <Badge badgeContent={cartQuantity} color="error">
+                  <ShoppingCartIcon />
+                </Badge>
+              </IconButton>
+            </Box>
+          </Toolbar>
+        </AppBar>
+      </Box>
+      <Container sx={{marginTop: "10vh"}}>
+        <FoodBannerComponent />
+        {items.map((item) => (
+          <OrderItemComponent
+            key={item.id}
+            id={item.id}
+            title={item.title}
+            body={item.body}
+            price={item.price}
+          />
+        ))}
+      </Container>
+      <DataProvider>
+      <CartComponent />
+      </DataProvider>
 
-
-          <CartComponent value={this.state.cartItems} isOpen={this.state.isOpen} closeCart={this.closeCart}/>
-          </>
-        );}
-
-
+    </>
+  );
 }
- 
+
 export default FoodOrderComponent;
-
-
